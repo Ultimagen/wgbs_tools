@@ -72,7 +72,7 @@ jobs:
       run: |
         uxm_deconv_dir=${{ env.WGBS_TOOL_RELATIVE_PATH }}/src/uxm_deconv
         mkdir -p ${uxm_deconv_dir}
-        cp -r ${{ env.UXM_DECONV_RELATIVE_PATH }}/src/. src/uxm_deconv
+        cp -r ${{ env.UXM_DECONV_RELATIVE_PATH }}/src/. ${uxm_deconv_dir}
 
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v4
