@@ -25,7 +25,7 @@ permissions:
 
 env:
   AWS_REGION: us-east-1
-  AWS_ROLE: arn:aws:iam::525048827230:role/github-actions-aws-role
+  AWS_ROLE: arn:aws:iam::337532070941:role/github-actions-ecr
   GCP_WORKLOAD_IDENTITY_PROVIDER: projects/55428976747/locations/global/workloadIdentityPools/devops-pool/providers/devops-pool-provider
   GCP_SERVICE_ACCOUNT: gcr-push-sa@ultima-data-307918.iam.gserviceaccount.com
   GAR_REPO: us-central1-docker.pkg.dev/ultima-data-307918/ultimagen
