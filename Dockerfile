@@ -44,7 +44,7 @@ ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 COPY --from=build /opt/venv /opt/venv
 
 COPY --from=build /opt/wgbstools /opt/wgbstools
-RUN mkdir -p /opt/wgbstools/references && chown appuser /opt/wgbstools/references
+RUN mkdir -p /opt/wgbstools/references
 
 RUN ln -s /opt/wgbstools/src/python/wgbs_tools.py /usr/local/bin/wgbstools
 RUN [ -f /opt/wgbstools/src/uxm_deconv/uxm.py ] && ln -s /opt/wgbstools/src/uxm_deconv/uxm.py /usr/local/bin/uxm || echo "uxm missing"
