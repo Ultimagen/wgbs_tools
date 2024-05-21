@@ -3,11 +3,6 @@ name: Build wgbs_tool docker image
 on:
   workflow_dispatch:
     inputs:
-      include-UXM_deconv:
-        type: boolean
-        default: true
-        required: true
-
       UXM_deconv-branch:
         type: string
         default: main
@@ -37,13 +32,6 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - name: Set image tag
-      if: ${{ inputs.image-tag == '' }}
-      run: |
-        git_sha="${{ github.sha }}"
-        image_tag=$(echo "${{ github.ref_name }}_${git_sha::6}" | sed 's/[^a-zA-Z0-9.]/-/g')
-        echo IMAGE_TAG=${image_tag} >> ${GITHUB_ENV}
-
     - name: Checkout wgbs_tools
       uses: actions/checkout@v4
       with:
@@ -51,7 +39,6 @@ jobs:
         path: ${{ env.WGBS_TOOL_RELATIVE_PATH }}
 
     - name: Checkout UXM_deconv
-      if: inputs.include-UXM_deconv
       uses: actions/checkout@v4
       with:
         repository: nloyfer/UXM_deconv
@@ -59,15 +46,21 @@ jobs:
         path: ${{ env.UXM_DECONV_RELATIVE_PATH }}
         ref: ${{ inputs.UXM_deconv-branch }}
 
-    - name: Get UXM_deconv sha
-      if: inputs.include-UXM_deconv
+
+    - name: Set image tag
       run: |
+        image_tag_base="$(echo ${{ inputs.image-tag || github.ref_name}} | sed 's/[^a-zA-Z0-9.]/-/g')"
+
+        git_sha="${{ github.sha }}"
+
         cd ${{ env.UXM_DECONV_RELATIVE_PATH }}
         uxm_deconv_sha=$(git log -1 '--format=format:%H')
-        echo UXM_DECONV_SHA=${uxm_deconv_sha} >> ${GITHUB_ENV}
+
+        image_tag="${image_tag_base}_${git_sha::6}_uxm_deconv_${uxm_deconv_sha::6}" 
+        
+        echo IMAGE_TAG=${image_tag} >> ${GITHUB_ENV}
 
     - name: Add UXM_deconv to file copied in the image
-      if: inputs.include-UXM_deconv
       run: |
         uxm_deconv_dir=${{ env.WGBS_TOOL_RELATIVE_PATH }}/src/uxm_deconv
         mkdir -p ${uxm_deconv_dir}
@@ -104,7 +97,7 @@ jobs:
       run: |
         set -e
 
-        image_tag=${{ inputs.image-tag || env.IMAGE_TAG }}
+        image_tag=${{ env.IMAGE_TAG }}
 
         docker_destinations="${{ steps.ecr-login.outputs.registry }}/${{ env.IMAGE_NAME }}:${image_tag},"
         docker_destinations+="${{ env.GAR_REPO }}/${{ env.IMAGE_NAME }}:${image_tag}"
@@ -124,9 +117,3 @@ jobs:
         provenance: false
         cache-from: type=gha
         cache-to: type=gha,mode=max
-
-    - name: Tag git repo
-      uses: rickstaa/action-create-tag@v1
-      with:
-        tag: ${{ inputs.image-tag || env.IMAGE_TAG }}
-        message: "Built by ${{ github.workflow_ref }} workflow. Job ID: ${{ github.job }}. ${{ env.UXM_DECONV_SHA && format('Includes UXM_deconv from commit {0}', env.UXM_DECONV_SHA) || '' }}"
