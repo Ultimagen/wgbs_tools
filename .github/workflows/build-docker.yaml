@@ -31,7 +31,6 @@ env:
   GAR_REPO: us-central1-docker.pkg.dev/ultima-data-307918/ultimagen
   UXM_DECONV_RELATIVE_PATH: UXM_deconv
   WGBS_TOOL_RELATIVE_PATH: wgbs_tools
-  WGBS_TOOL_IMAGE_LOCAL_TAG: wgbs_tools:local
   IMAGE_NAME: wgbs_tools
 
 jobs:
@@ -119,7 +118,7 @@ jobs:
     - name: Build and push
       uses: docker/build-push-action@v5
       with:
-        context: ${{ env.WGBS_TOOL_IMAGE_LOCAL_TAG }}
+        context: ${{ env.WGBS_TOOL_RELATIVE_PATH }}
         push: true
         tags: ${{ env.DOCKER_DESTINATIONS }}
         provenance: false
