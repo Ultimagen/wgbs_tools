@@ -129,8 +129,8 @@ def mkdirp(dpath):
 def check_samtools_version(major=1, minor=15, verbose=False):
     # make sure samtools version >= major.minor
     try:
-        t = subprocess.check_output(['samtools', '--version']).decode()
-        existing_version = t.splitlines()[0].strip().split()[1]
+        t = subprocess.check_output(['samtools', '--version'])
+        existing_version = t.splitlines()[0].strip().split()[1].decode()
         if verbose:
             eprint('[wt] samtools path:', shutil.which('samtools'), sep='\t')
             eprint('[wt] samtools version:', existing_version, sep='\t')
@@ -141,6 +141,7 @@ def check_samtools_version(major=1, minor=15, verbose=False):
             return cmajor > major
         return cminor >= minor
     except Exception:
+        eprint('[wt] WARNING: failed to validate samtools version')
         # failed to run samtools --version
         pass
     return False
@@ -185,6 +186,7 @@ def drop_dup_keep_order(lst):
 def validate_dir(directory):
     if not op.isdir(directory):
         raise IllegalArgumentError(f'Invalid directory:\n{directory}')
+    return directory
 
 
 def color_text(txt, cdict, scheme=16):
